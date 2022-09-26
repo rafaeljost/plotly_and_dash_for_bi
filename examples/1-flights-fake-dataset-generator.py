@@ -25,13 +25,11 @@ def create_rows_mimesis(num=1):
 
 start = time.time()
 # the code you want to test stays here
-df_mimesis = pd.DataFrame(create_rows_mimesis(500))
+df_mimesis = pd.DataFrame(create_rows_mimesis(5000000))
 
-# df.to_csv('../data/mimesis-file2.csv')
+df_mimesis.to_csv('../data/mimesis-flights-5M.csv')
 
 # end of the code you want to test
 end = time.time()
 
 print(end - start)
-
-print(df_mimesis)
