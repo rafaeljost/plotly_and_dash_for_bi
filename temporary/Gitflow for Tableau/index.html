@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="css/mattropolis.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# GIT Workflow
+### For Tableau projects
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Disclaimer: 
+
+The information below is tailored to serve someone who never heard of git before. I will make **A LOT** of omissions on specific details of each technology and maybe make some false analogies along the way, don’t take it personal 🙂
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Starting with why
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Starting with why
+<img src="300 Files/6w99gx.jpg" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# What will it take?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# What will it take?
+
+<img src="300 Files/rule-of-80-20.webp" alt="" style="object-fit: scale-down">
+Correction: more like 90/10 In the case of git for Tableau, it might even be more
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# What is GIT?
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Stands for **GLOBAL INFORMATION TRACKER**
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Open source software originally used to version control code (basically text files)
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->It needs to be installed in your local machine, independent of other services you might use (gitlab, github, bitbucket…)
+- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->Although mostly used for Software Development, it can basically be used for any documents you would benefit having “backups” for (I wish the 24 years old me knew that before having to rewrite part of my bachelor thesis)
+- &shy;<!-- .element: class="fragment" data-fragment-index="5" -->Can also be used for other types of files, but might need some special care in dealing with them
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# What does it do?
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->It creates a repository in your own computer that tracks changes of the files within it
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->The repository is basically a folder in your computer where all files in your “project” are stored
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Whenever a **COMMIT** is done, a “snapshot” is created of the current state of the repository. At any point in time, you can revert to this “copy” of the repository if necessary.
+- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->The “snapshot” contains only the changes between the previous and the new version of the files within the repository, resulting in a very efficient way to store information
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# How does it help teams?
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Enables a structured development process via **BRANCHES** and **MERGE REQUESTS**
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->**BRANCHES** are a "copy" of the repository
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Usually we have a **MAIN** and a **DEV** branch, both contain the “stable” versions of your project
+- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->New branches are created whenever a new feature or change is necessary, changes done there don't affect the other branches
+- &shy;<!-- .element: class="fragment" data-fragment-index="5" -->After a piece of work is complete, a **MERGE REQUEST** is created and if approved, can be joined back to the main version of the repository
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# How about github, gitlab, bitbucket...?
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Those are services that allow you to store your local repository online (a “remote” repository), making it easier to collaborate with other developers
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Think of it as a “shared drive” service similar to google drive or share point, but more powerful.
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Anyone who has the right permissions can access and make changes to the files within this remote repository
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Do I need to learn how to code?
+
+1. &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**NO**, you can use GUI apps like Github Desktop
+1. &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Maybe a little later you can learn the command line a bit if you want to unlock more super powers...
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Tableau + git workflow
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->2 Branches, Main and Dev
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Temporary branches for each JIRA story (features)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Demo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+#  Tableau + git workflow
+
+<img src="300 Files/Pasted image 20221010000939.png" alt="" style="object-fit: scale-down">
+
+ - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Each dot is a commit
+ - &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Each feature is a different JIRA story
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Dev 
+### default branch, protected: 
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Has the core development and changes. 
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->New temporary branches are created from it to add new features/workbooks and are merged back when finished. 
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->A pipeline can be run whenever a a change from a temporary branch gets merged in to it and the main goal would be to deploy on test server (dev or int)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Main
+  ### main (protected branch)
+  
+  - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->shouldn’t contain any developments with branches starting from it. 
+  - &shy;<!-- .element: class="fragment" data-fragment-index="2" -->The only merge action that should happen is dev merging into main
+  - &shy;<!-- .element: class="fragment" data-fragment-index="3" -->a pipeline can run after a merge from dev to make the prod release
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Feature 
+  ### Temporary branches, open
+  
+  - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Each developer creates one when working in a JIRA story
+  - &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Anyone from the team can access those branches at anytime and continue work if necessary
+  - &shy;<!-- .element: class="fragment" data-fragment-index="3" -->After work is completed, a **MERGE REQUEST** should be created in order to make the new feature available in the main and dev branches
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# But what if two or more developers are working on the same workbook at  the same time?
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**MERGE CONFLICTS** can happen when submitting a merge request is created
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->In that case, the developers need to decide what change to keep and what change to discard when
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Not that bad when dealing with programming languages
+- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->Tableau XML on the other hand can be quite tricky to decipher,  good luck dealing with that!
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Is there any other way?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" data-auto-animate="true" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Is there any other way?
+<img src="300 Files/6wbrwk.jpg" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Locking files through git lfs:
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->LFS stands for “Large File Storage”
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->It  allows users to “lock” certain files tracked within this system
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Locks are tracked across all branches, meaning two people wouldn’t be able to modify the same file at the same time
+- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->This already comes with GIT
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Simple git workflow for tableau:
+
+1. &shy;<!-- .element: class="fragment" data-fragment-index="1" --> The developer should always lock his workbook whenever he is going to implement a new feature or perform a change. While the workbook is locked, no one else is able to merge branches into dev/main with the same workbook, even if he manages to alter the read only flag from the file.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="2" --> After changes are done, the developer should then submit a merge request and assign a reviewer.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="3" --> If corrections are necessary after the review, the developer performs the changes and request a review once more.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="4" --> After the review is approved, the developer who created the branch is responsible to merge his branch into dev. As a good practice, his local branch should also be deleted.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="5" --> After the merge, the file should be unlocked so other developers can work with it if necessary.
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+## Temporary branches:
+
+1. &shy;<!-- .element: class="fragment" data-fragment-index="1" --> Every time a new feature, workbook or change is necessary, a new branch should be created from dev. As a good convention, it should always start with the JIRA ticket number for the story and a short description of the task,
+1. &shy;<!-- .element: class="fragment" data-fragment-index="2" --> Ideally, every commit should have a meaningful title and message, even if short. This allows the reviewer to quickly perform his review and understand the process the developer went through.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="3" --> It’s also good practice to always commit and push your work to the remote repository whenever meaningful changes are done or the developer will be absent, even if the feature is not yet complete or ready for review. This allows other developers to pick up the ticket and finish the delivery in case of urgency.
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Git + git lfs local repository set up
+
+1. &shy;<!-- .element: class="fragment" data-fragment-index="1" --> Download and install git. (keep the defaults during the installation process, this should come with git lfs by default).
+1. &shy;<!-- .element: class="fragment" data-fragment-index="2" --> Set up your user name and email via git bash
+1. &shy;<!-- .element: class="fragment" data-fragment-index="3" --> Download and install Github desktop. (you can choose other GUIs or even not use a GUI at all, I recommend this one because it is simple and minimalistic. If you are not familiar with the git workflow, it helps you to focus on what matters without clutter or scary messages.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="4" --> Create your Gitlab personal access token and save it in your password manager
+1. &shy;<!-- .element: class="fragment" data-fragment-index="5" --> Get the https link from our gitlab repo and clone via github desktop (or do it via the CLI if you prefer ;) ). You should be prompted to enter your username and password. Use your normal username and choose the PTA you saved before for password.
+1. &shy;<!-- .element: class="fragment" data-fragment-index="6" --> Initialize git lfs via the desktop GUI or via git bash
+1. &shy;<!-- .element: class="fragment" data-fragment-index="7" --> Have fun ;)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 1080px; width: 1920px; min-height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# Thank you
+<img src="300 Files/75c1009cb129240e25f867cc323b3d6ec058ccbb168e1121d7923dd34cad00f5.jpg" alt="" style="object-fit: scale-down">
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+
+	if(isLight(bgColor)){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+		  RevealMenu,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		customcontrols: {
+			controls: [
+				{id: 'toggle-overview',
+				title: 'Toggle overview (O)',
+				icon: '<i class="fa fa-th"></i>',
+				action: 'Reveal.toggleOverview();'
+				},
+			]
+		},
+		menu: {
+			loadIcons: false
+		}
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":1920,"height":1080,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"fragments":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
