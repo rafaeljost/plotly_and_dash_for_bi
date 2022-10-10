@@ -1,0 +1,11 @@
+@echo off
+set /p type="Type of Operation (l=lock, u=unlock): "
+if %type%==l set "operation=lock"
+if %type%==u set "operation=unlock"
+if defined operation (
+for %%f in (%*) do (
+echo "...%operation%ing %%~nxf..."
+git lfs %operation% "%%~nxf"
+)
+) else (echo "ERROR: You entered a wrong argument (%type%). Please enter either l or u.")
+@pause
